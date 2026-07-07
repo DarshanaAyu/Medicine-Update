@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Borella Ayurveda Hospital — OPD Dispensary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Sinhala:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#FBF9F4;
+    --surface:#FFFFFF;
+    --ink:#24302B;
+    --ink-soft:#5B665F;
+    --green-deep:#1F4D3D;
+    --green-deep-dark:#153A2D;
+    --green-sage:#6B8F71;
+    --green-mist:#E7EEE7;
+    --ochre:#C68A2E;
+    --ochre-soft:#F3E3C6;
+    --muted:#9B9184;
+    --terracotta:#B3452C;
+    --terracotta-soft:#F5DFD6;
+    --line:#E7E1D4;
+    --radius:16px;
+    --radius-sm:10px;
+    --shadow:0 1px 2px rgba(31,77,61,0.06), 0 4px 16px rgba(31,77,61,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .si{font-family:'Noto Sans Sinhala','Inter',sans-serif;}
+  #app{max-width:520px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;padding-bottom:32px;}
+
+  /* Header */
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    background:var(--green-deep);
+    color:#fff;
+    padding:14px 16px;
+    display:flex;align-items:center;gap:10px;
+    box-shadow:var(--shadow);
+  }
+  .topbar .back{
+    background:rgba(255,255,255,0.12);border:none;color:#fff;
+    width:36px;height:36px;border-radius:10px;font-size:18px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+  }
+  .topbar h1{
+    font-family:'Fraunces',serif;font-weight:600;font-size:17px;
+    margin:0;line-height:1.25;flex:1;letter-spacing:0.1px;
+  }
+  .topbar .sub{font-size:11px;color:var(--ochre-soft);font-weight:500;opacity:0.85;margin-top:1px;}
+  .topbar .lang-btn{
+    background:rgba(255,255,255,0.12);border:none;color:#fff;
+    padding:7px 11px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;
+  }
+
+  .brand-header{
+    padding:22px 20px 16px;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .brand-eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;
+    color:var(--green-sage);text-transform:uppercase;font-weight:500;
+  }
+  .brand-title{
+    font-family:'Fraunces',serif;font-weight:600;font-size:26px;color:var(--green-deep-dark);
+    line-height:1.15;
+  }
+  .brand-title .leaf{font-size:22px;margin-right:6px;}
+
+  /* Role/lang bar on home */
+  .control-row{
+    display:flex;gap:8px;padding:0 20px 18px;
+  }
+  .segmented{
+    display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;flex:1;
+  }
+  .segmented button{
+    flex:1;border:none;background:transparent;padding:8px 4px;border-radius:9px;
+    font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .segmented button.active{background:var(--green-deep);color:#fff;}
+
+  /* Status banner */
+  .banner{
+    margin:0 20px 18px;padding:12px 14px;border-radius:var(--radius-sm);
+    display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.4;
+  }
+  .banner.warn{background:var(--terracotta-soft);color:#7A2E1B;border:1px solid #E3B8A4;}
+  .banner.ok{background:var(--green-mist);color:var(--green-deep-dark);border:1px solid #CFE0D2;}
+  .banner b{display:block;font-size:13px;margin-bottom:1px;}
+
+  /* Home grid */
+  .home-grid{padding:0 20px;display:flex;flex-direction:column;gap:10px;}
+  .home-btn{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;
+    box-shadow:var(--shadow);text-align:left;width:100%;
+  }
+  .home-btn .icon{
+    width:44px;height:44px;border-radius:12px;background:var(--green-mist);
+    display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+  }
+  .home-btn.primary{background:var(--green-deep);border-color:var(--green-deep);}
+  .home-btn.primary .icon{background:rgba(255,255,255,0.15);}
+  .home-btn.primary .title{color:#fff;}
+  .home-btn.primary .desc{color:var(--ochre-soft);}
+  .home-btn .title{font-weight:600;font-size:15px;color:var(--ink);}
+  .home-btn .desc{font-size:12px;color:var(--ink-soft);margin-top:1px;}
+  .home-btn .arrow{margin-left:auto;color:var(--muted);font-size:16px;}
+  .home-btn.primary .arrow{color:rgba(255,255,255,0.7);}
+
+  .stats-row{display:flex;gap:10px;padding:0 20px 4px;}
+  .stat-card{
+    flex:1;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:12px;text-align:center;
+  }
+  .stat-card .num{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--green-deep-dark);}
+  .stat-card.unavail .num{color:var(--terracotta);}
+  .stat-card .lbl{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+
+  /* Search */
+  .search-wrap{padding:14px 20px 6px;}
+  .search-box{
+    display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:10px 14px;
+  }
+  .search-box input{border:none;outline:none;flex:1;font-size:14px;background:transparent;font-family:'Inter',sans-serif;color:var(--ink);}
+  .search-box .clear{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;}
+
+  /* Category */
+  .category{margin:14px 20px 0;}
+  .category-head{
+    display:flex;align-items:center;gap:10px;padding:10px 4px;cursor:pointer;
+    border-bottom:1px solid var(--line);
+  }
+  .category-head .cicon{font-size:18px;}
+  .category-head .cname{font-weight:600;font-size:14.5px;color:var(--green-deep-dark);flex:1;}
+  .category-head .cname .si-name{color:var(--ink-soft);font-weight:500;font-size:12.5px;margin-left:6px;}
+  .category-head .ccount{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--green-sage);
+    background:var(--green-mist);padding:2px 8px;border-radius:20px;
+  }
+  .category-head .chevron{color:var(--muted);font-size:12px;transition:transform 0.15s;}
+  .category-head.collapsed .chevron{transform:rotate(-90deg);}
+  .category-body{overflow:hidden;}
+  .category-body.collapsed{display:none;}
+
+  .med-row{
+    display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid #F1EDE1;
+  }
+  .med-row:last-child{border-bottom:none;}
+  .med-check{
+    width:24px;height:24px;border-radius:7px;border:2px solid var(--line);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--surface);
+  }
+  .med-check.checked{background:var(--green-deep);border-color:var(--green-deep);color:#fff;font-size:14px;}
+  .med-name{flex:1;font-size:14px;color:var(--ink);}
+  .med-name .si-name{display:block;font-size:12px;color:var(--ink-soft);margin-top:1px;}
+  .med-row.readonly{cursor:default;}
+  .med-row.unavailable-hidden{display:none;}
+  .avail-dot{width:8px;height:8px;border-radius:50%;background:var(--green-sage);flex-shrink:0;}
+
+  .empty-state{padding:40px 20px;text-align:center;color:var(--ink-soft);}
+  .empty-state .e-icon{font-size:34px;margin-bottom:8px;}
+  .empty-state .e-title{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--green-deep-dark);margin-bottom:4px;}
+
+  /* Footer meta bar (view/update screen) */
+  .meta-bar{
+    padding:10px 20px;display:flex;justify-content:space-between;align-items:center;
+    font-size:11.5px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;
+  }
+  .meta-bar .saved{color:var(--green-sage);font-weight:500;}
+
+  .action-bar{
+    display:flex;gap:8px;padding:14px 20px 4px;flex-wrap:wrap;
+  }
+  .btn{
+    border:none;border-radius:11px;padding:11px 16px;font-size:13px;font-weight:600;cursor:pointer;
+    font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;
+  }
+  .btn-primary{background:var(--green-deep);color:#fff;flex:1;justify-content:center;}
+  .btn-outline{background:var(--surface);color:var(--green-deep-dark);border:1px solid var(--line);}
+  .btn-ghost{background:var(--green-mist);color:var(--green-deep-dark);}
+  .btn-danger{background:var(--terracotta-soft);color:#7A2E1B;}
+  .btn:active{opacity:0.8;}
+
+  /* Admin */
+  .admin-list-item{
+    display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid #F1EDE1;
+  }
+  .admin-list-item .a-info{flex:1;}
+  .admin-list-item .a-name{font-size:14px;font-weight:500;}
+  .admin-list-item .a-cat{font-size:11.5px;color:var(--ink-soft);}
+  .icon-btn{background:none;border:none;color:var(--ink-soft);font-size:15px;cursor:pointer;padding:6px;}
+  .icon-btn.del{color:var(--terracotta);}
+
+  .form-block{padding:14px 20px;}
+  .form-field{margin-bottom:12px;}
+  .form-field label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
+  .form-field input, .form-field select{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    font-size:14px;font-family:'Inter',sans-serif;background:var(--surface);color:var(--ink);
+  }
+
+  .history-item{
+    display:flex;align-items:center;gap:12px;padding:14px 4px;border-bottom:1px solid #F1EDE1;cursor:pointer;
+  }
+  .history-item .h-date{flex:1;}
+  .history-item .h-day{font-weight:600;font-size:14px;}
+  .history-item .h-count{font-size:12px;color:var(--ink-soft);}
+  .history-item .h-arrow{color:var(--muted);}
+
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--green-deep-dark);color:#fff;padding:10px 18px;border-radius:30px;
+    font-size:13px;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:100;
+    opacity:0;transition:opacity 0.2s;pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+
+  .section-label{
+    padding:16px 20px 4px;font-family:'IBM Plex Mono',monospace;font-size:11px;
+    letter-spacing:0.06em;text-transform:uppercase;color:var(--green-sage);font-weight:500;
+  }
+  ::selection{background:var(--ochre-soft);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CATEGORIES = [
+  {key:'kwatha',  icon:'🌿', en:'Kwatha',   si:'ක්වාත'},
+  {key:'arishta', icon:'🍶', en:'Arishta',  si:'අරිශ්ඨ'},
+  {key:'oils',    icon:'🛢', en:'Oils',     si:'තෙල්'},
+  {key:'tablets', icon:'💊', en:'Tablets',  si:'ගුලි'},
+  {key:'kalka',   icon:'🌱', en:'Kalka',    si:'කල්ක'},
+  {key:'churna',  icon:'🌾', en:'Churna',   si:'චූර්ණ'},
+  {key:'alepa',   icon:'🧴', en:'Alepa',    si:'ආලේප'},
+];
+
+const DEFAULT_MEDICINES = [
+  {id:'m1',  name_en:'Dashamula Kwatha',      name_si:'දශමූල ක්වාත',        category:'kwatha'},
+  {id:'m2',  name_en:'Nirgundi Kwatha',       name_si:'නිර්ගුන්ධි ක්වාත',    category:'kwatha'},
+  {id:'m3',  name_en:'Rasnadi Kwatha',        name_si:'රාස්නාදි ක්වාත',      category:'kwatha'},
+  {id:'m4',  name_en:'Ashokarishta',          name_si:'අශෝකාරිෂ්ට',          category:'arishta'},
+  {id:'m5',  name_en:'Dashamularishta',       name_si:'දශමූලාරිෂ්ට',         category:'arishta'},
+  {id:'m6',  name_en:'Saraswatharishta',      name_si:'සරස්වතාරිෂ්ට',        category:'arishta'},
+  {id:'m7',  name_en:'Ksheerabala Oil',       name_si:'ක්ෂීරබල තෙල්',        category:'oils'},
+  {id:'m8',  name_en:'Chandanadi Oil',        name_si:'චන්දනාදි තෙල්',       category:'oils'},
+  {id:'m9',  name_en:'Yogaraja Guggulu',      name_si:'යෝගරාජ ගුග්ගුලු',     category:'tablets'},
+  {id:'m10', name_en:'Triphala Guli',         name_si:'ත්‍රිඵල ගුලි',         category:'tablets'},
+  {id:'m11', name_en:'Priyangu Kalka',        name_si:'ප්‍රියංගු කල්ක',       category:'kalka'},
+  {id:'m12', name_en:'Manjishta Kalka',       name_si:'මංජිෂ්ඨා කල්ක',       category:'kalka'},
+  {id:'m13', name_en:'Triphala Churna',       name_si:'ත්‍රිඵල චූර්ණ',        category:'churna'},
+  {id:'m14', name_en:'Sudarshana Churna',     name_si:'සුදර්ශන චූර්ණ',       category:'churna'},
+  {id:'m15', name_en:'Kumkumadi Alepa',       name_si:'කුංකුමාදි ආලේප',      category:'alepa'},
+  {id:'m16', name_en:'Nimba Alepa',           name_si:'නිම්බ ආලේප',          category:'alepa'},
+];
+
+const HOSPITAL_NAME = "Borella Ayurveda Hospital";
+
+// ---------- State ----------
+let state = {
+  route: 'home',
+  role: 'pharmacy',       // admin | pharmacy | doctor
+  lang: 'en',             // en | si
+  medicines: [],
+  dailyDate: todayStr(),
+  daily: {status:{}, updatedBy:null, updatedAt:null},
+  collapsed: {},          // category collapse state
+  search: '',
+  historyDate: null,
+  editingMed: null,       // medicine id being edited in admin, or 'new'
+};
+let saveTimer = null;
+
+function todayStr(d){
+  const dt = d ? new Date(d) : new Date();
+  return dt.toISOString().slice(0,10);
+}
+function prettyDate(dstr){
+  const d = new Date(dstr + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+}
+function prettyTime(iso){
+  if(!iso) return '';
+  return new Date(iso).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+}
+function uid(){ return 'm' + Math.random().toString(36).slice(2,9); }
+
+// ---------- Storage helpers ----------
+async function safeGet(key, shared){
+  try{
+    const r = await window.storage.get(key, shared);
+    return r ? r.value : null;
+  }catch(e){ return null; }
+}
+async function safeSet(key, value, shared){
+  try{ await window.storage.set(key, value, shared); return true; }
+  catch(e){ console.error('storage set failed', key, e); return false; }
+}
+
+async function loadMedicines(){
+  let raw = await safeGet('medicines', true);
+  if(!raw){
+    await safeSet('medicines', JSON.stringify(DEFAULT_MEDICINES), true);
+    state.medicines = DEFAULT_MEDICINES.slice();
+  } else {
+    try{ state.medicines = JSON.parse(raw); }catch(e){ state.medicines = DEFAULT_MEDICINES.slice(); }
+  }
+}
+async function saveMedicines(){
+  await safeSet('medicines', JSON.stringify(state.medicines), true);
+}
+async function loadDaily(date){
+  let raw = await safeGet('daily:' + date, true);
+  if(!raw){
+    state.daily = {status:{}, updatedBy:null, updatedAt:null};
+  } else {
+    try{ state.daily = JSON.parse(raw); }catch(e){ state.daily = {status:{}, updatedBy:null, updatedAt:null}; }
+  }
+}
+function queueSaveDaily(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    state.daily.updatedAt = new Date().toISOString();
+    state.daily.updatedBy = roleLabel(state.role);
+    await safeSet('daily:' + state.dailyDate, JSON.stringify(state.daily), true);
+    render(); // refresh meta bar "saved" text
+  }, 400);
+}
+async function loadPrefs(){
+  let raw = await safeGet('prefs', false);
+  if(raw){
+    try{ const p = JSON.parse(raw); state.role = p.role || state.role; state.lang = p.lang || state.lang; }catch(e){}
+  }
+}
+async function savePrefs(){
+  await safeSet('prefs', JSON.stringify({role:state.role, lang:state.lang}), false);
+}
+
+function roleLabel(r){
+  return r === 'admin' ? 'Admin' : r === 'pharmacy' ? 'Pharmacy' : 'Doctor';
+}
+
+// ---------- Toast ----------
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+// ---------- Navigation ----------
+function goto(route, extra){
+  state.route = route;
+  if(extra) Object.assign(state, extra);
+  render();
+}
+
+// ---------- Derived helpers ----------
+function availableCount(){
+  return Object.values(state.daily.status).filter(Boolean).length;
+}
+function unavailableCount(){
+  return state.medicines.length - availableCount();
+}
+function medsForCategory(catKey, availableOnly){
+  return state.medicines.filter(m=>{
+    if(m.category !== catKey) return false;
+    if(state.search){
+      const s = state.search.toLowerCase();
+      if(!m.name_en.toLowerCase().includes(s) && !m.name_si.includes(state.search)) return false;
+    }
+    if(availableOnly && !state.daily.status[m.id]) return false;
+    return true;
+  });
+}
+function medName(m){
+  return state.lang === 'si'
+    ? `<span class="si">${m.name_si}</span>`
+    : `${m.name_en}`;
+}
+function medNameBoth(m){
+  if(state.lang === 'si'){
+    return `<span class="si">${m.name_si}</span><span class="si-name">${m.name_en}</span>`;
+  }
+  return `${m.name_en}<span class="si-name si">${m.name_si}</span>`;
+}
+
+// ---------- Render root ----------
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = renderRoute();
+  bindEvents();
+}
+
+function renderRoute(){
+  switch(state.route){
+    case 'home': return renderHome();
+    case 'list': return renderList();
+    case 'export': return renderExport();
+    case 'history': return renderHistory();
+    case 'historyDetail': return renderHistoryDetail();
+    case 'admin': return renderAdmin();
+    case 'adminForm': return renderAdminForm();
+    default: return renderHome();
+  }
+}
+
+// ---------- Screens ----------
+function renderTopbar(title, sub, showBack){
+  return `
+  <div class="topbar">
+    ${showBack ? `<button class="back" data-action="back">←</button>` : ''}
+    <div>
+      <h1>${title}</h1>
+      ${sub ? `<div class="sub">${sub}</div>` : ''}
+    </div>
+    <button class="lang-btn" data-action="toggle-lang">${state.lang === 'en' ? 'සිං' : 'EN'}</button>
+  </div>`;
+}
+
+function renderHome(){
+  const updatedToday = !!state.daily.updatedAt && state.dailyDate === todayStr();
+  const banner = updatedToday
+    ? `<div class="banner ok">🌿 <div><b>Updated today</b>Last saved ${prettyTime(state.daily.updatedAt)} by ${state.daily.updatedBy || '—'}</div></div>`
+    : `<div class="banner warn">⚠️ <div><b>Not updated today</b>${state.role === 'doctor' ? 'Showing the most recent saved list.' : "Update today's list before OPD opens."}</div></div>`;
+
+  const canEdit = state.role !== 'doctor';
+
+  let buttons = '';
+  if(canEdit){
+    buttons += `
+    <button class="home-btn primary" data-action="goto" data-route="list" data-mode="edit">
+      <div class="icon">✅</div>
+      <div><div class="title">Update Today's Medicines</div><div class="desc">Mark what's available in under 2 minutes</div></div>
+      <div class="arrow">›</div>
+    </button>`;
+  } else {
+    buttons += `
+    <button class="home-btn primary" data-action="goto" data-route="list" data-mode="view">
+      <div class="icon">🔎</div>
+      <div><div class="title">Available Today</div><div class="desc">Search medicines currently in stock</div></div>
+      <div class="arrow">›</div>
+    </button>`;
+  }
+  if(canEdit){
+    buttons += `
+    <button class="home-btn" data-action="goto" data-route="list" data-mode="view">
+      <div class="icon">📋</div>
+      <div><div class="title">Available Today</div><div class="desc">${availableCount()} of ${state.medicines.length} medicines</div></div>
+      <div class="arrow">›</div>
+    </button>`;
+  }
+  buttons += `
+    <button class="home-btn" data-action="goto" data-route="export">
+      <div class="icon">📤</div>
+      <div><div class="title">Export</div><div class="desc">PDF or WhatsApp-ready list</div></div>
+      <div class="arrow">›</div>
+    </button>
+    <button class="home-btn" data-action="goto" data-route="history">
+      <div class="icon">🕘</div>
+      <div><div class="title">History</div><div class="desc">Last 7 days</div></div>
+      <div class="arrow">›</div>
+    </button>`;
+  if(state.role === 'admin'){
+    buttons += `
+    <button class="home-btn" data-action="goto" data-route="admin">
+      <div class="icon">🗂</div>
+      <div><div class="title">Drug Management</div><div class="desc">Add, edit, or reorganize medicines</div></div>
+      <div class="arrow">›</div>
+    </button>`;
+  }
+
+  return `
+  <div class="brand-header">
+    <div class="brand-eyebrow">OPD Dispensary · ${prettyDate(state.dailyDate)}</div>
+    <div class="brand-title"><span class="leaf">🌿</span>${HOSPITAL_NAME}</div>
+  </div>
+  <div class="control-row">
+    <div class="segmented" data-group="role">
+      <button data-role="pharmacy" class="${state.role==='pharmacy'?'active':''}">Pharmacy</button>
+      <button data-role="doctor" class="${state.role==='doctor'?'active':''}">Doctor</button>
+      <button data-role="admin" class="${state.role==='admin'?'active':''}">Admin</button>
+    </div>
+  </div>
+  ${banner}
+  <div class="stats-row">
+    <div class="stat-card"><div class="num">${availableCount()}</div><div class="lbl">Available</div></div>
+    <div class="stat-card unavail"><div class="num">${unavailableCount()}</div><div class="lbl">Not available</div></div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="home-grid">${buttons}</div>
+  `;
+}
+
+function renderCategoryBlock(cat, opts){
+  const meds = medsForCategory(cat.key, opts.availableOnly);
+  if(opts.hideEmpty && meds.length === 0) return '';
+  const collapsed = !!state.collapsed[cat.key];
+  const availCountInCat = state.medicines.filter(m=>m.category===cat.key && state.daily.status[m.id]).length;
+  const totalInCat = state.medicines.filter(m=>m.category===cat.key).length;
+
+  const rows = meds.map(m=>{
+    if(opts.editable){
+      const checked = !!state.daily.status[m.id];
+      return `
+      <div class="med-row" data-action="toggle" data-id="${m.id}">
+        <div class="med-check ${checked?'checked':''}">${checked?'✓':''}</div>
+        <div class="med-name">${medNameBoth(m)}</div>
+      </div>`;
+    } else {
+      return `
+      <div class="med-row readonly">
+        <div class="avail-dot"></div>
+        <div class="med-name">${medNameBoth(m)}</div>
+      </div>`;
+    }
+  }).join('');
+
+  return `
+  <div class="category">
+    <div class="category-head ${collapsed?'collapsed':''}" data-action="toggle-cat" data-cat="${cat.key}">
+      <div class="cicon">${cat.icon}</div>
+      <div class="cname">${state.lang==='si' ? `<span class="si">${cat.si}</span>` : cat.en}<span class="si-name si">${state.lang==='si'?cat.en:cat.si}</span></div>
+      <div class="ccount">${opts.availableOnly ? meds.length : availCountInCat + '/' + totalInCat}</div>
+      <div class="chevron">▾</div>
+    </div>
+    <div class="category-body ${collapsed?'collapsed':''}">${rows || `<div style="padding:14px 4px;color:var(--muted);font-size:13px;">No medicines match.</div>`}</div>
+  </div>`;
+}
+
+function renderList(){
+  const editable = state.mode === 'edit' && state.role !== 'doctor';
+  const availableOnly = !editable;
+  const title = editable ? "Update Today's Medicines" : "Available Today";
+  const sub = editable ? "Tap to mark available — saves automatically" : prettyDate(state.dailyDate);
+
+  const cats = CATEGORIES.map(cat => renderCategoryBlock(cat, {editable, availableOnly, hideEmpty: !editable ? true : false})).join('');
+
+  const savedLabel = state.daily.updatedAt
+    ? `<span class="saved">✓ Saved ${prettyTime(state.daily.updatedAt)}</span>`
+    : `<span>Not saved yet</span>`;
+
+  return `
+  ${renderTopbar(title, sub, true)}
+  <div class="search-wrap">
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" id="searchInput" placeholder="Search medicine (English or Sinhala)" value="${state.search.replace(/"/g,'&quot;')}">
+      ${state.search ? `<button class="clear" data-action="clear-search">✕</button>` : ''}
+    </div>
+  </div>
+  <div class="meta-bar">
+    <span>${availableCount()} available · ${unavailableCount()} not available</span>
+    ${editable ? savedLabel : ''}
+  </div>
+  ${cats}
+  <div style="height:24px"></div>
+  `;
+}
+
+function renderExport(){
+  return `
+  ${renderTopbar('Export', prettyDate(state.dailyDate), true)}
+  <div class="section-label">Today's summary</div>
+  <div class="stats-row" style="margin-top:8px;">
+    <div class="stat-card"><div class="num">${availableCount()}</div><div class="lbl">Available</div></div>
+    <div class="stat-card unavail"><div class="num">${unavailableCount()}</div><div class="lbl">Not available</div></div>
+  </div>
+  <div class="action-bar" style="flex-direction:column;">
+    <button class="btn btn-primary" data-action="export-pdf">📄 Download PDF</button>
+    <button class="btn btn-outline" data-action="export-whatsapp">💬 Share to WhatsApp</button>
+    <button class="btn btn-ghost" data-action="export-print">🖨 Print</button>
+  </div>
+  <div class="section-label">Preview</div>
+  <div style="padding:8px 20px 24px;">
+    ${CATEGORIES.map(cat=>renderCategoryBlock(cat, {editable:false, availableOnly:true, hideEmpty:true})).join('') || `<div class="empty-state"><div class="e-icon">🌿</div><div class="e-title">Nothing marked available yet</div></div>`}
+  </div>
+  `;
+}
+
+function renderHistory(){
+  // populated async below via window.__historyDays
+  const days = window.__historyDays || [];
+  const items = days.map(d=>`
+    <div class="history-item" data-action="open-history" data-date="${d.date}">
+      <div style="font-size:20px;">🗓</div>
+      <div class="h-date">
+        <div class="h-day">${prettyDate(d.date)}</div>
+        <div class="h-count">${d.count} available${d.updatedBy ? ' · ' + d.updatedBy : ''}</div>
+      </div>
+      <div class="h-arrow">›</div>
+    </div>
+  `).join('');
+  return `
+  ${renderTopbar('History', 'Last 7 days', true)}
+  <div style="padding:6px 20px;">
+    ${items || `<div class="empty-state"><div class="e-icon">🕘</div><div class="e-title">No history yet</div></div>`}
+  </div>
+  `;
+}
+
+function renderHistoryDetail(){
+  const d = state.historyDate;
+  const dailyForDay = window.__historyDetail || {status:{}, updatedBy:null, updatedAt:null};
+  const oldDaily = state.daily; const oldDate = state.dailyDate;
+  state.daily = dailyForDay; state.dailyDate = d;
+  const cats = CATEGORIES.map(cat=>renderCategoryBlock(cat, {editable:false, availableOnly:true, hideEmpty:true})).join('');
+  state.daily = oldDaily; state.dailyDate = oldDate;
+  return `
+  ${renderTopbar(prettyDate(d), 'Read-only snapshot', true)}
+  <div class="action-bar">
+    <button class="btn btn-outline" data-action="export-pdf-history" data-date="${d}">📄 Export this day</button>
+  </div>
+  <div style="padding:8px 20px 24px;">${cats}</div>
+  `;
+}
+
+function renderAdmin(){
+  const rows = state.medicines.map(m=>{
+    const cat = CATEGORIES.find(c=>c.key===m.category);
+    return `
+    <div class="admin-list-item">
+      <div class="a-info">
+        <div class="a-name">${m.name_en} <span class="si-name si" style="margin-left:6px;">${m.name_si}</span></div>
+        <div class="a-cat">${cat ? cat.icon + ' ' + cat.en : m.category}</div>
+      </div>
+      <button class="icon-btn" data-action="edit-med" data-id="${m.id}">✎</button>
+      <button class="icon-btn del" data-action="delete-med" data-id="${m.id}">🗑</button>
+    </div>`;
+  }).join('');
+  return `
+  ${renderTopbar('Drug Management', state.medicines.length + ' medicines', true)}
+  <div class="action-bar">
+    <button class="btn btn-primary" data-action="new-med">＋ Add medicine</button>
+  </div>
+  <div style="padding:0 20px 24px;">${rows}</div>
+  `;
+}
+
+function renderAdminForm(){
+  const isNew = state.editingMed === 'new';
+  const m = isNew ? {name_en:'', name_si:'', category:CATEGORIES[0].key} : state.medicines.find(x=>x.id===state.editingMed);
+  return `
+  ${renderTopbar(isNew ? 'Add Medicine' : 'Edit Medicine', null, true)}
+  <div class="form-block">
+    <div class="form-field">
+      <label>English name</label>
+      <input type="text" id="f_en" value="${(m.name_en||'').replace(/"/g,'&quot;')}" placeholder="e.g. Triphala Churna">
+    </div>
+    <div class="form-field">
+      <label>Sinhala name</label>
+      <input type="text" id="f_si" class="si" value="${(m.name_si||'')}" placeholder="e.g. ත්‍රිඵල චූර්ණ">
+    </div>
+    <div class="form-field">
+      <label>Category</label>
+      <select id="f_cat">
+        ${CATEGORIES.map(c=>`<option value="${c.key}" ${c.key===m.category?'selected':''}>${c.icon} ${c.en} · ${c.si}</option>`).join('')}
+      </select>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-primary" data-action="save-med">Save</button>
+  </div>
+  `;
+}
+
+// ---------- Actions ----------
+async function handleToggle(id){
+  state.daily.status[id] = !state.daily.status[id];
+  queueSaveDaily();
+  render();
+}
+
+async function refreshHistory(){
+  try{
+    const list = await window.storage.list('daily:', true);
+    const keys = (list && list.keys) || [];
+    const days = keys.map(k=>k.replace('daily:','')).sort().reverse().slice(0,7);
+    const results = [];
+    for(const date of days){
+      const raw = await safeGet('daily:' + date, true);
+      let d = {status:{}};
+      try{ d = JSON.parse(raw); }catch(e){}
+      results.push({date, count: Object.values(d.status||{}).filter(Boolean).length, updatedBy: d.updatedBy});
+    }
+    window.__historyDays = results;
+  }catch(e){ window.__historyDays = []; }
+  render();
+}
+
+async function openHistoryDetail(date){
+  const raw = await safeGet('daily:' + date, true);
+  let d = {status:{}, updatedBy:null, updatedAt:null};
+  try{ d = JSON.parse(raw); }catch(e){}
+  window.__historyDetail = d;
+  goto('historyDetail', {historyDate: date});
+}
+
+function buildReportRows(daily){
+  const rows = [];
+  CATEGORIES.forEach(cat=>{
+    const meds = state.medicines.filter(m=>m.category===cat.key && daily.status[m.id]);
+    if(meds.length) rows.push({cat, meds});
+  });
+  return rows;
+}
+
+function exportPDF(date, daily){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 18;
+  doc.setFont('helvetica','bold'); doc.setFontSize(15);
+  doc.text(HOSPITAL_NAME, 14, y); y+=7;
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text('OPD Dispensary — Available Medicines', 14, y); y+=6;
+  doc.text(prettyDate(date), 14, y); y+=10;
+
+  const rows = buildReportRows(daily);
+  rows.forEach(({cat, meds})=>{
+    if(y > 275){ doc.addPage(); y = 18; }
+    doc.setFont('helvetica','bold'); doc.setFontSize(11);
+    doc.text(`${cat.icon}  ${cat.en} / ${cat.si}`, 14, y); y+=6;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    meds.forEach(m=>{
+      if(y > 280){ doc.addPage(); y = 18; }
+      doc.text(`• ${m.name_en}  (${m.name_si})`, 18, y); y+=5.5;
+    });
+    y+=4;
+  });
+  const total = Object.values(daily.status).filter(Boolean).length;
+  if(y > 270){ doc.addPage(); y = 18; }
+  doc.setFont('helvetica','bold'); doc.text(`Total available: ${total}`, 14, y+4);
+
+  doc.save(`OPD-medicines-${date}.pdf`);
+}
+
+function buildWhatsAppText(date, daily){
+  let text = `*${HOSPITAL_NAME}*\nOPD Available Medicines — ${prettyDate(date)}\n\n`;
+  const rows = buildReportRows(daily);
+  rows.forEach(({cat, meds})=>{
+    text += `${cat.icon} *${cat.en} / ${cat.si}*\n`;
+    meds.forEach(m=> text += `• ${m.name_en} (${m.name_si})\n`);
+    text += `\n`;
+  });
+  text += `Total available: ${Object.values(daily.status).filter(Boolean).length}`;
+  return text;
+}
+
+function bindEvents(){
+  document.querySelectorAll('[data-action]').forEach(el=>{
+    el.addEventListener('click', async (e)=>{
+      const action = el.getAttribute('data-action');
+      switch(action){
+        case 'back': goto('home'); break;
+        case 'toggle-lang': state.lang = state.lang==='en'?'si':'en'; savePrefs(); render(); break;
+        case 'goto': goto(el.getAttribute('data-route'), {mode: el.getAttribute('data-mode')}); if(el.getAttribute('data-route')==='history') refreshHistory(); break;
+        case 'toggle-cat': {
+          const c = el.getAttribute('data-cat');
+          state.collapsed[c] = !state.collapsed[c];
+          render();
+          break;
+        }
+        case 'toggle': await handleToggle(el.getAttribute('data-id')); break;
+        case 'clear-search': state.search=''; render(); break;
+        case 'export-pdf': exportPDF(state.dailyDate, state.daily); break;
+        case 'export-pdf-history': {
+          const d = el.getAttribute('data-date');
+          exportPDF(d, window.__historyDetail);
+          break;
+        }
+        case 'export-print': window.print(); break;
+        case 'export-whatsapp': {
+          const text = buildWhatsAppText(state.dailyDate, state.daily);
+          window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+          break;
+        }
+        case 'open-history': openHistoryDetail(el.getAttribute('data-date')); break;
+        case 'new-med': goto('adminForm', {editingMed:'new'}); break;
+        case 'edit-med': goto('adminForm', {editingMed: el.getAttribute('data-id')}); break;
+        case 'delete-med': {
+          const id = el.getAttribute('data-id');
+          if(confirm('Remove this medicine from the list?')){
+            state.medicines = state.medicines.filter(m=>m.id!==id);
+            await saveMedicines();
+            toast('Medicine removed');
+            render();
+          }
+          break;
+        }
+        case 'save-med': {
+          const en = document.getElementById('f_en').value.trim();
+          const si = document.getElementById('f_si').value.trim();
+          const cat = document.getElementById('f_cat').value;
+          if(!en){ toast('English name required'); return; }
+          if(state.editingMed === 'new'){
+            state.medicines.push({id: uid(), name_en:en, name_si:si, category:cat});
+          } else {
+            const m = state.medicines.find(x=>x.id===state.editingMed);
+            m.name_en = en; m.name_si = si; m.category = cat;
+          }
+          await saveMedicines();
+          toast('Saved');
+          goto('admin');
+          break;
+        }
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-role]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      state.role = el.getAttribute('data-role');
+      savePrefs();
+      render();
+    });
+  });
+
+  const searchInput = document.getElementById('searchInput');
+  if(searchInput){
+    searchInput.addEventListener('input', (e)=>{
+      state.search = e.target.value;
+      render();
+      // restore focus + cursor after re-render
+      const s = document.getElementById('searchInput');
+      if(s){ s.focus(); s.selectionStart = s.selectionEnd = s.value.length; }
+    });
+  }
+}
+
+// ---------- Init ----------
+async function init(){
+  await loadPrefs();
+  await loadMedicines();
+  await loadDaily(state.dailyDate);
+  render();
+}
+init();
+</script>
+</body>
+</html>
